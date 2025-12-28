@@ -1,119 +1,450 @@
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<!doctype html>
+<html lang="tr">
 
-<style>
-    /* SQUARESAPCE ARAYÜZÜNÜ GİZLE */
-    header, footer, .sqs-layout, #siteWrapper {
-        display: none !important;
-        opacity: 0 !important;
-    }
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Yelgin Aerospace — Durum</title>
 
-    /* --- SANAL GÖVDE (WRAPPER) --- */
-    /* Body yerine bu kutuyu boyuyoruz */
-    #yelgin-mainframe {
-        position: fixed !important; /* Ekrana çivile */
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important; /* Ekran genişliği */
-        height: 100vh !important; /* Ekran yüksekliği */
-        background-color: #05102B !important;
-        z-index: 999999 !important; /* Her şeyin üstüne çık */
-        overflow: hidden !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-family: 'Exo 2', sans-serif;
-    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 
-    /* --- ARKA PLAN IZGARASI --- */
-    .grid-layer {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-        background-size: 60px 60px;
-        z-index: 1;
-        animation: gridPulse 8s infinite ease-in-out;
-    }
+    <style>
+        :root {
+            --bg: #05102B;
+            --cyan: rgba(0, 240, 255, 1);
+            --grid: rgba(0, 240, 255, 0.03);
+            --muted: #586385;
+            --white: #ffffff;
+        }
 
-    /* --- TARAMA ÇİZGİSİ --- */
-    .scanline-layer {
-        position: absolute;
-        top: -10%; left: 0; width: 100%; height: 20px;
-        background: linear-gradient(to bottom, transparent, rgba(0, 240, 255, 0.4), transparent);
-        z-index: 2;
-        animation: scanline 6s infinite linear;
-        pointer-events: none;
-    }
+        /* Sayfa tabanı */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            font-family: 'Exo 2', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
 
-    /* --- İÇERİK --- */
-    .content-layer {
-        z-index: 10;
-        text-align: center;
-        position: relative;
-    }
+        /* --- ANA WRAPPER --- */
+        #yelgin-mainframe {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            /* fallback */
+            height: 100dvh;
+            /* mobil dinamik viewport */
+            background-color: var(--bg);
+            overflow-x: hidden;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            isolation: isolate;
+            /* z-index katmanları daha kontrollü */
+        }
 
-    .hero-logo {
-        width: 380px;
-        max-width: 80vw;
-        height: auto;
-        display: block;
-        margin: 0 auto 2rem auto;
-        animation: floatLogo 6s infinite ease-in-out;
-        filter: drop-shadow(0px 0px 10px rgba(0, 240, 255, 0.1));
-    }
+        /* --- ARKA PLAN IZGARASI --- */
+        .grid-layer {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+            animation: gridPulse 8s infinite ease-in-out;
+            pointer-events: none;
+        }
 
-    .status-text {
-        color: #FFFFFF;
-        font-size: 14px;
-        letter-spacing: 6px;
-        font-weight: 400;
-        text-transform: uppercase;
-        animation: textGlow 3s infinite alternate;
-    }
+        /* --- TARAMA ÇİZGİSİ --- */
+        .scanline-layer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to bottom,
+                    transparent,
+                    rgba(0, 240, 255, 0.8),
+                    transparent);
+            z-index: 2;
+            animation: scanlineMove 4s infinite ease-in-out alternate;
+            transform: translateY(-100%);
+            pointer-events: none;
+            will-change: transform;
+        }
 
-    .system-footer {
-        position: absolute;
-        bottom: 30px;
-        width: 100%;
-        text-align: center;
-        color: #586385;
-        font-size: 11px;
-        letter-spacing: 3px;
-        font-weight: 300;
-        z-index: 10;
-        opacity: 0.8;
-    }
+        /* --- İÇERİK --- */
+        .content-layer {
+            z-index: 10;
+            text-align: center;
+            position: relative;
+            padding: 24px;
+        }
 
-    /* --- ANİMASYONLAR --- */
-    @keyframes gridPulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.3; } }
-    @keyframes scanline { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
-    @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-    @keyframes textGlow { from { text-shadow: 0 0 5px rgba(255,255,255,0.1); } to { text-shadow: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 30px rgba(0, 240, 255, 0.2); } }
+        .hero-logo {
+            width: 380px;
+            max-width: 80vw;
+            height: auto;
+            display: block;
+            margin: 0 auto 2rem auto;
+            animation: floatLogo 6s infinite ease-in-out;
+            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.10));
+            user-select: none;
+        }
 
-    @media only screen and (max-width: 600px) {
-        .hero-logo { width: 260px; }
-        .status-text { font-size: 11px; letter-spacing: 3px; }
-        .system-footer { font-size: 9px; bottom: 20px; }
-    }
-</style>
+        .status-text {
+            color: var(--white);
+            font-size: 14px;
+            letter-spacing: 6px;
+            font-weight: 400;
+            text-transform: uppercase;
+            animation: textGlow 3s infinite alternate;
+        }
 
-<div id="yelgin-mainframe">
-    <div class="grid-layer"></div>
-    <div class="scanline-layer"></div>
+        .system-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 3px;
+            font-weight: 300;
+            z-index: 10;
+            opacity: 0.85;
+            padding: 0 16px;
+            box-sizing: border-box;
+        }
 
-    <div class="content-layer">
-        <img src="https://static1.squarespace.com/static/69505239a5b8cf214b020322/t/69505fdf15756950373750d1/1766875104213/Varl%C4%B1k+11.png" class="hero-logo" alt="Yelgin Aerospace">
-        
-        <div class="status-text">
-            Ar-Ge Faaliyetleri Devam Etmektedir
+        /* --- ANİMASYONLAR --- */
+        @keyframes gridPulse {
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* top yerine transform: daha akıcı */
+        @keyframes scanlineMove {
+            0% {
+                transform: translateY(-20vh);
+            }
+
+            100% {
+                transform: translateY(120vh);
+            }
+        }
+
+        @keyframes floatLogo {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes textGlow {
+            from {
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.10);
+            }
+
+            to {
+                text-shadow: 0 0 20px rgba(0, 240, 255, 0.50), 0 0 30px rgba(0, 240, 255, 0.20);
+            }
+        }
+
+        /* Hareket istemeyenlere saygı */
+        @media (prefers-reduced-motion: reduce) {
+
+            .grid-layer,
+            .scanline-layer,
+            .hero-logo,
+            .status-text {
+                animation: none !important;
+            }
+
+            .scanline-layer {
+                opacity: 0.6;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-logo {
+                width: 260px;
+            }
+
+            .status-text {
+                font-size: 11px;
+                letter-spacing: 3px;
+            }
+
+            .system-footer {
+                font-size: 9px;
+                bottom: 20px;
+            }
+        }
+
+        /* --- 3D KÜRE ALANI --- */
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            /* Grid'in üstünde (1), içeriğin altında (10) */
+            pointer-events: none;
+            /* Mouse olayları window'dan alınacak */
+            opacity: 0.7;
+        }
+
+        /* --- TELEMETRİ VERİLERİ --- */
+        .telemetry-panel {
+            position: absolute;
+            z-index: 15;
+            color: var(--cyan);
+            font-family: 'Exo 2', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            padding: 20px;
+            pointer-events: none;
+            /* Seçilemez süs */
+        }
+
+        .t-top-right {
+            top: 0;
+            right: 0;
+            text-align: right;
+        }
+
+        .t-bottom-left {
+            bottom: 0;
+            left: 0;
+            text-align: left;
+            /* Footer ile çakışmaması için biraz yukarı */
+            margin-bottom: 50px;
+        }
+
+        .data-row {
+            margin-bottom: 6px;
+        }
+
+        .data-label {
+            color: var(--muted);
+            margin-right: 8px;
+        }
+
+        /* Typewriter Cursor */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background-color: var(--cyan);
+            animation: cursorBlink 1s infinite;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        @keyframes cursorBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main id="yelgin-mainframe" role="main" aria-label="Yelgin Aerospace durum ekranı">
+        <div class="grid-layer" aria-hidden="true"></div>
+        <div class="scanline-layer" aria-hidden="true"></div>
+
+        <!-- Three.js Container -->
+        <div id="canvas-container"></div>
+
+        <!-- Telemetry Panels -->
+        <div class="telemetry-panel t-top-right">
+            <div class="data-row"><span class="data-label">ALT:</span><span id="tel-alt">24000</span> FT</div>
+            <div class="data-row"><span class="data-label">SPD:</span><span id="tel-spd">840</span> KM/H</div>
         </div>
-    </div>
 
-    <div class="system-footer">
-        SYS.STATUS: NOMINAL &nbsp;|&nbsp; BURSA, TR &nbsp;|&nbsp; EST. 2025
-    </div>
-</div>
+        <div class="telemetry-panel t-bottom-left">
+            <div class="data-row"><span class="data-label">LAT:</span><span id="tel-lat">40.18</span> N</div>
+            <div class="data-row"><span class="data-label">LON:</span><span id="tel-lon">29.06</span> E</div>
+            <div class="data-row"><span class="data-label">UPT:</span><span id="tel-upt">04:21:09</span></div>
+        </div>
+
+        <div class="content-layer">
+            <img src="https://raw.githubusercontent.com/Yualse/yelgin/refs/heads/main/Varl%C4%B1k%2012.png"
+                class="hero-logo" alt="Yelgin Aerospace" draggable="false" />
+
+            <div class="status-text">
+                Ar-Ge Faaliyetleri Devam Etmektedir
+            </div>
+        </div>
+
+        <div class="system-footer">
+            SYS.STATUS: NOMINAL &nbsp;|&nbsp; BURSA, TR &nbsp;|&nbsp; EST. 2025
+        </div>
+    </main>
+
+    <!-- Three.js Library -->
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+
+    <script>
+        /* --- TYPEWRITER EFFECT --- */
+        const textElement = document.querySelector('.status-text');
+        // Temizle
+        const originalText = "AR-GE FAALİYETLERİ DEVAM ETMEKTEDİR"; // HTML'den alabiliriz ama sabit de olur
+        textElement.innerHTML = "";
+
+        // Cursor ekle
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+        textElement.appendChild(cursor);
+
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < originalText.length) {
+                const char = originalText.charAt(charIndex);
+                // Harfi cursor'dan önce ekle
+                const span = document.createElement('span');
+                span.textContent = char;
+                textElement.insertBefore(span, cursor);
+
+                charIndex++;
+                // Rastgele gecikme ile "insan" veya "makine" yazımı hissi
+                setTimeout(typeWriter, Math.random() * 50 + 30);
+            }
+        }
+
+        // Başlat (biraz bekle)
+        setTimeout(typeWriter, 1000);
+
+        /* --- TELEMETRY DATA LOOP --- */
+        function updateTelemetry() {
+            // Altitude
+            const alt = document.getElementById('tel-alt');
+            let currentAlt = parseInt(alt.innerText);
+            alt.innerText = currentAlt + Math.floor(Math.random() * 20 - 10);
+
+            // Speed
+            const spd = document.getElementById('tel-spd');
+            let currentSpd = parseInt(spd.innerText);
+            spd.innerText = currentSpd + Math.floor(Math.random() * 5 - 2);
+
+
+
+            // Uptime (basit saat sayacı)
+            const upt = document.getElementById('tel-upt');
+            // Gerçek saati de yazabiliriz ama "Uptime" gibi artsın istiyorsak:
+            // Basitçe o anki saati yazalım, daha canlı durur
+            const now = new Date();
+            upt.innerText = now.toLocaleTimeString('tr-TR');
+        }
+        setInterval(updateTelemetry, 500);
+
+        /* --- THREE.JS GLOBE --- */
+        const container = document.getElementById('canvas-container');
+
+        // Scene Setup
+        const scene = new THREE.Scene();
+        // Transparent bg
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.z = 20; // Uzaklık
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Globe Geometry
+        // Icosahedron daha "teknik" durur Sphere yerine
+        const geometry = new THREE.IcosahedronGeometry(6.65, 3);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x00F0FF, // Cyan
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+        const globe = new THREE.Mesh(geometry, material);
+        scene.add(globe);
+
+        // İkinci bir katman (çekirdek) - daha yoğun
+        const coreGeo = new THREE.IcosahedronGeometry(4.75, 1);
+        const coreMat = new THREE.MeshBasicMaterial({
+            color: 0x586385,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1
+        });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(core);
+
+        // Animation Loop
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+
+        // Mouse hareketi ile etkileşim
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
+            mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+
+            // Sürekli yavaş dönüş
+            globe.rotation.y += 0.002;
+            core.rotation.y -= 0.002; // Zıt yön
+
+            // Mouse etkileşimi (yumuşak geçiş)
+            globe.rotation.x += (mouseY - globe.rotation.x) * 0.05;
+            globe.rotation.y += (mouseX - globe.rotation.y) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>
